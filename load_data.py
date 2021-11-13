@@ -1,6 +1,8 @@
 from xml.dom import minidom
 from collections import defaultdict
 import joblib
+import utm
+
 
 mydoc = minidom.parse('big_map.osm')
 nodes = mydoc.getElementsByTagName('node')
@@ -10,7 +12,8 @@ for node in nodes:
     nid = int(node.attributes["id"].value)
     lat = float(node.attributes["lat"].value)
     lon = float(node.attributes["lon"].value)
-    node_hash[nid] = (lat, lon)
+    northing, easting, _, _ = utm.from_latlon(lat,lon)
+    node_hash[nid] = (easting, northing)
 
 
 
