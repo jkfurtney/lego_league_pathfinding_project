@@ -1,0 +1,6 @@
+for each building, find the nearest line segment.
+Update the road graph to have house nodes
+
+make a random delivery list of 20 houses
+
+https://stackoverflow.com/questions/222413/find-the-shortest-path-in-a-graph-which-visits-certain-nodes
