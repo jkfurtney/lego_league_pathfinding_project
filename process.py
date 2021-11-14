@@ -60,3 +60,31 @@ for n0, n1 in G.edges:
 # nx.draw(G, pos=pos)
 # plt.gca().set_aspect(1)
 # plt.show()
+
+
+houses = [] # centroid, point_array, nearest_road_node
+hx,hy=[],[]
+for _, way in house_ways.items():
+    node_list = way["nodes"]
+    x, y = [], []
+    for node_id in node_list:
+        lat, lon = node_hash[node_id]
+        x.append(lon)
+        y.append(lat)
+    xx, yy = sum(x)/len(x), sum(y)/len(y)
+    hx.append(xx); hy.append(yy)
+    houses.append(((xx,yy), np.array((x,y)), None))
+
+
+#for every house, find the point on the nearest road segment and add a node there
+
+# for (hx, hy), _, _ in houses:
+#     for n0, n1 in G.edges:
+#         p0, p1 = np.array([G.nodes[n0]["pos"]), G.nodes[n1]["pos"])
+
+
+
+nx.draw(G, pos=pos)
+plt.scatter(hx,hy)
+plt.gca().set_aspect(1)
+plt.show()
