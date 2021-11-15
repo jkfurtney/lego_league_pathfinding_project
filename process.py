@@ -78,13 +78,65 @@ for _, way in house_ways.items():
 
 #for every house, find the point on the nearest road segment and add a node there
 
-# for (hx, hy), _, _ in houses:
-#     for n0, n1 in G.edges:
-#         p0, p1 = np.array([G.nodes[n0]["pos"]), G.nodes[n1]["pos"])
+i=0
+closest_road_to_house = []
+for (hx, hy), _, _ in houses:
+    p0 = np.array([hx, hy])
+    shortest = 1e100
+    shortest_edge = None
+    shortest_location = None
+    for n0, n1 in G.edges:
+        s0, s1 = np.array(G.nodes[n0]["pos"]), np.array(G.nodes[n1]["pos"])
+        v = p0-s0
+        l = np.linalg.norm(s1-s0) # segment length
+        n = (s1-s0)/l # normal vector along segment from s0 to s1
+        h = np.dot(v, n) # length along h from s0 to s1
+        p1 = s0 + n*h # projected onto line segment
+        # print(s0)
+        # print(s1, l)
+        # print(n)
+        # print(p1)
+
+        if h <= 0:
+            d = np.linalg.norm(p0-s0)
+            closest = np.copy(s0)
+        elif h > l:
+            d = np.linalg.norm(p0-s1)
+            closest = np.copy(s1)
+        else:
+            d = np.linalg.norm(p0-p1)
+            closest = np.copy(p1)
+        if d < shortest:
+            shortest=d
+            shortest_edge = n0,n1
+            shortest_location = closest
+        #print(d)
+    closest_road_to_house.append((shortest_location, shortest, shortest_edge))
 
 
+xx, yy = [], []
+for i, ((hx, hy), _, _) in enumerate(houses):
+    xx.append(hx)
+    yy.append(hy)
+    px, py = closest_road_to_house[i][0]
+    plt.plot([hx,px],[hy,py])
+plt.plot(xx,yy, "o")
 
-nx.draw(G, pos=pos)
-plt.scatter(hx,hy)
+for n0, n1 in G.edges:
+    (s0x, s0y), (s1x, s1y) = np.array(G.nodes[n0]["pos"]), np.array(G.nodes[n1]["pos"])
+    plt.plot([s0x,s1x], [s0y,s1y])
+
 plt.gca().set_aspect(1)
+plt.show()
+
+
+# nx.draw(G, pos=pos)
+# plt.scatter(hx,hy)
+# plt.gca().set_aspect(1)
+# plt.show()
+
+joblib.dump((G, houses, closest_road_to_house), "processed.pkl")
+x,y = np.vstack((p0, p1, s0, s1)).T
+
+plt.plot(x,y,"o")
 plt.show()
