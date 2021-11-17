@@ -8,7 +8,12 @@ from matplotlib.patches import Circle, Wedge, Polygon
 from matplotlib.collections import PatchCollection
 import networkx as nx
 
-G, houses, closest_road_to_house = joblib.load("processed.pkl")
+# G,d0,d1 = joblib.load("processed.pkl")
+# for i, item in enumerate(d0): d0[i] = list(d0[i])
+# for i, item in enumerate(d0): d0[i][-1] = d1[i]
+# joblib.dump((G,d0), "processed2.pkl")
+
+G, houses = joblib.load("processed2.pkl")
 
 patches = []
 xx, yy = [], []
@@ -17,14 +22,16 @@ for i, ((hx, hy), polygon, _) in enumerate(houses):
     yy.append(hy)
     # px, py = closest_road_to_house[i][0]
     #plt.plot([hx,hx],[hy,hy], "o")
+    #plt.text(hx,hy,f"{i}")
     plt.plot(*polygon, "-", color="grey")
+
+# Ramsey is building 17
 
 ih = random.sample(range(len(houses)),2)
 
 new_nodes = []
 for hid in ih:
-    (hx,hy), polygon, _ = houses[hid]
-    (rx, ry), distance, (n0,n1) = closest_road_to_house[hid]
+    (hx,hy), polygon, ((rx, ry), distance, (n0,n1)) = houses[hid]
     G.remove_edge(n0,n1)
     n2 = len(G.nodes)
     G.add_edge(n0,n2, weight=np.linalg.norm(np.array(G.nodes[n0]["pos"])-np.array((rx,ry))))
