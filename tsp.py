@@ -9,6 +9,7 @@ from matplotlib.collections import PatchCollection
 import networkx as nx
 import itertools
 import math
+import copy
 
 G, houses = joblib.load("processed2.pkl")
 
@@ -16,7 +17,7 @@ G, houses = joblib.load("processed2.pkl")
 school = houses[17]
 del houses[17]
 
-deliveries  = list(random.sample(houses,40)) +[school]
+deliveries  = list(random.sample(houses, 30)) +[school]
 houses.append(school)
 
 def search_for_house_road_edge(house):
@@ -77,7 +78,7 @@ def plot_house_outlines(houses):
 def plot_deliveries():
     for n in new_nodes:
         rx, ry = G.nodes[n]["pos"]
-        plt.plot(rx,ry,"o", color="red")
+        plt.plot(rx,ry,"o", color="black")
 
 node_node = {}
 for n0,n1 in itertools.combinations(new_nodes, 2):
@@ -126,10 +127,23 @@ def clockwise(graph):
     sorted_list = np.array(node_ids)[np.argsort(angles)].tolist()
     return sorted_list + [sorted_list[0]]
 
+def bogo_sort(path, graph, N=25):
+    best_path = copy.copy(path)
+    path = copy.copy(path)
+    distance = get_distance(path, graph)
+    for i in range(N):
+        random.shuffle(path)
+        d = get_distance(path+[path[0]], graph)
+        if d < distance:
+            best_path = copy.copy(path+[path[0]])
+            distance = d
+    return best_path
+
+
 #for alg in christofides, greedy_tsp, threshold_accepting_tsp, simulated_annealing_tsp:
 christofides_path = christofides(G_tsp, "weight")
 christofides_distance = get_distance(christofides_path, G_tsp)
-greedy_tsp_path = greedy_tsp(G_tsp, "weight")
+greedy_tsp_path = greedy_tsp(G_tsp, "weight", source=school_node)
 greedy_tsp_distance = get_distance(greedy_tsp_path, G_tsp)
 clockwise_path = clockwise(G_tsp)
 simulated_annealing_tsp_path = simulated_annealing_tsp(G_tsp, greedy_tsp_path, "weight", temp=500, N_inner=200, max_iterations=20)
@@ -139,6 +153,13 @@ print(christofides_distance)
 print(greedy_tsp_distance)
 print(simulated_annealing_tsp_distance)
 print(clockwise_distance)
+random_path = copy.copy(clockwise_path[:-1])
+random.shuffle(random_path)
+random_distance = get_distance(random_path+[random_path[0]], G_tsp)
+bogo_path = bogo_sort(random_path, G_tsp, N=100)
+bogo_distance = get_distance(bogo_path, G_tsp)
+print(random_distance)
+print(bogo_distance)
 
 distance=0
 
@@ -150,22 +171,28 @@ def draw_path(path, graph, color):
         for j in range(len(road_path)-1):
             nn0, nn1 = road_path[j], road_path[j+1]
             p = np.array([G.nodes[nn0]["pos"], G.nodes[nn1]["pos"]]).T
-            plt.plot(p[0], p[1], color="orange", linewidth=2)
+            plt.plot(p[0], p[1], color="black", linewidth=2)
 
         p = np.array([graph.nodes[n0]["pos"], graph.nodes[n1]["pos"]]).T
-        plt.plot(p[0], p[1], color=color, linewidth=0.75)
+        plt.plot(p[0], p[1], "--", color=color, linewidth=0.75)
         # draw the road path also
 
 
 
-def show_path(path, graph, color):
+def show_path(path, graph, color, name):
+    d = name + " {:.1f} km".format(get_distance(path, graph)/1e3)
+    plt.title(d)
     plot_house_outlines(houses)
     plot_streets(G)
     plot_deliveries()
     draw_path(path, graph, color)
+    plt.xlim(484_631, 487_515)
+    plt.ylim(4_975_372, 4_977_339)
     plt.gca().set_aspect(1)
     plt.show()
 
-show_path(greedy_tsp_path, G_tsp, "blue")
-show_path(christofides_path, G_tsp, "blue")
-show_path(clockwise_path, G_tsp, "blue")
+
+show_path(greedy_tsp_path, G_tsp, "black", "Greedy")
+show_path(christofides_path, G_tsp, "black", "Christofides")
+show_path(clockwise_path, G_tsp, "black", "Clockwise")
+show_path(bogo_path, G_tsp, "black", "Random")
