@@ -3,3 +3,4 @@ stpaul_processed2.pkl
 stpaul_processed.pkl
 __pycache__/
 sp.osm
+roads.json
