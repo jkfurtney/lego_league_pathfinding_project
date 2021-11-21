@@ -6,27 +6,7 @@ from matplotlib import pyplot as plt
 import networkx as nx
 from scipy.constants import mile
 from matplotlib.collections import LineCollection
-
-speed_limit = {'tertiary': 20,
-               'residential': 20,
-               'unclassified': 30,
-               'motorway_link': 65,
-               'motorway': 65,
-               'primary_link': 40,
-               'secondary': 25,
-               'primary': 30,
-               'tertiary_link': 20,
-               'trunk_link': 45,
-               'path': 20,
-               'track': 20,
-               'secondary_link': 25,
-               'trunk': 45,
-               'raceway': 20,
-               'platform': 20,
-               'living_street': 20,
-               'corridor': 20,
-               'road': 30,
-               'construction': 20}
+from lib import plot_streets, speed_limit
 
 
 node_hash,house_ways,road_ways = joblib.load("stpaul.pkl")
@@ -54,6 +34,7 @@ assert ramsey_id in house_ways
 rnodes = house_ways[ramsey_id]["nodes"]
 xx,yy=[],[]
 
+# convert to miles and have Ramsey Middle School at the middle
 for n in rnodes:
     x, y = node_hash[n]
     xx.append(x)
@@ -63,6 +44,17 @@ yc = sum(yy)/len(yy)
 for node_id, _ in node_hash.items():
     x,y = node_hash[node_id]
     node_hash[node_id] = (x-xc)/mile, (y-yc)/mile
+
+# put distance and travel time into the road graph edges
+for (n0,n1), attr in G.edges.items():
+    p0 = G.nodes[n0]["pos"] = node_hash[n0]
+    p1 = G.nodes[n1]["pos"] = node_hash[n1]
+    distance = np.linalg.norm(np.array(p0)-np.array(p1))
+    speed = speed_limit[attr["road_type"]]
+    attr["speed_limit"] = speed
+    travel_time = distance/speed*60 # put travel time in minutes
+    attr["distance"] = distance
+    attr["travel_time"] = travel_time
 
 x_street = []
 y_street = []
@@ -74,24 +66,27 @@ for i in G.nodes():
 xmin, xmax = min(x_street), max(x_street)
 ymin, ymax = min(y_street), max(y_street)
 
-
-def get_street_segments(G):
-    segments = []
-    speeds = []
-    for (n0, n1), data in G.edges.items():
-        (s0x, s0y), (s1x, s1y) = np.array(G.nodes[n0]["pos"]), np.array(G.nodes[n1]["pos"])
-        segments.append(((s0x, s0y), (s1x, s1y)))
-        speeds.append(speed_limit[data["road_type"]])
-    return segments, speeds
-
-def plot_streets(G):
-    segments, speeds = get_street_segments(G)
-    speeds = np.array(speeds)
-    plt.gca().add_collection(LineCollection(segments, linewidths=speeds/40.0, colors="grey"))
-    plt.gca().set_aspect(1)
-    plt.xlim(xmin, xmax)
-    plt.ylim(ymin, ymax)
-    plt.xlabel("East-West [miles]")
-    plt.ylabel("North-South [miles]")
-    plt.show()
 plot_streets(G)
+
+
+# calculate house centroids and get rid of houses that have missing nodes
+remove_list = []
+for house_id, way in house_ways.items():
+    node_list = way["nodes"]
+    x, y = [], []
+    for node_id in node_list:
+        if not node_id in node_hash:
+            remove_list.append(house_id)
+            continue
+        xx,yy = node_hash[node_id]
+        x.append(xx)
+        y.append(yy)
+    if not len(x):
+        continue
+    xx, yy = sum(x)/len(x), sum(y)/len(y)
+    way["centroid"] = xx, yy
+
+for rm in set(remove_list):
+    del house_ways[rm]
+
+joblib.dump((node_hash, house_ways, G), "stpaul_processed.pkl")
