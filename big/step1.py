@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 import networkx as nx
 from scipy.constants import mile
 from matplotlib.collections import LineCollection
-from lib import plot_streets, speed_limit
+from lib import plot_streets, speed_limit, ramsey_id
 
 
 node_hash,house_ways,road_ways = joblib.load("stpaul.pkl")
@@ -29,7 +29,6 @@ for n in list(G.nodes):
     if not n in largest_cc:
         G.remove_node(n)
 
-ramsey_id = 66979553
 assert ramsey_id in house_ways
 rnodes = house_ways[ramsey_id]["nodes"]
 xx,yy=[],[]
@@ -65,9 +64,12 @@ for i in G.nodes():
     y_street.append(y)
 xmin, xmax = min(x_street), max(x_street)
 ymin, ymax = min(y_street), max(y_street)
+    plt.xlim(xmin, xmax)
+    plt.ylim(ymin, ymax)
 
 plot_streets(G)
-
+set_plot_lims(G, node_hash)
+plt.show()
 
 # calculate house centroids and get rid of houses that have missing nodes
 remove_list = []

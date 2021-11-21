@@ -10,17 +10,17 @@ import networkx as nx
 import itertools
 import math
 import copy
-from lib import plot_streets, set_plot_lims
+from lib import plot_streets, set_plot_lims, ramsey_id, plot_deliveries
 
 print("loading data ", end="")
 node_hash, house_ways, G = joblib.load("stpaul_processed.pkl")
 print("done")
 
 # Ramsey Middle School
-ramsey_id = 66979553
+
 school = house_ways[ramsey_id]
 del house_ways[ramsey_id]
-deliveries  = list(random.sample(tuple(house_ways.keys()), 10)) +[ramsey_id]
+deliveries  = list(random.sample(tuple(house_ways.keys()), 30)) +[ramsey_id]
 house_ways[ramsey_id] = school
 
 def search_for_house_road_edge(house):
@@ -86,10 +86,6 @@ for n0,n1 in itertools.combinations(new_nodes, 2):
         travel_time += G[path[i]][path[i+1]]["travel_time"]
     node_node[n0,n1] = (travel_time, path)
 
-def plot_deliveries(G, new_nodes):
-    for n in new_nodes:
-        rx, ry = G.nodes[n]["pos"]
-        plt.plot(rx,ry,"o", color="black")
 
 
 plot_streets(G)
@@ -97,3 +93,5 @@ plot_streets(G)
 plot_deliveries(G, new_nodes)
 set_plot_lims(G, node_hash)
 plt.show()
+
+joblib.dump((node_hash, house_ways, G, node_node, new_nodes), "stpaul_processed2.pkl")

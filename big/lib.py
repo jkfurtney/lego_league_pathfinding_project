@@ -5,6 +5,8 @@ from matplotlib import pyplot as plt
 plt.rcParams.update({'font.size': 18})
 from matplotlib.collections import LineCollection
 
+ramsey_id = 66979553
+
 speed_limit = {'tertiary': 20,
                'residential': 20,
                'unclassified': 30,
@@ -56,3 +58,8 @@ def plot_streets(G):
     plt.gca().set_aspect(1)
     plt.xlabel("East-West [miles]")
     plt.ylabel("North-South [miles]")
+
+def plot_deliveries(G, new_nodes):
+    for n in new_nodes:
+        rx, ry = G.nodes[n]["pos"]
+        plt.plot(rx,ry,"o", color="black")
