@@ -6,13 +6,43 @@
     <meta content="utf-8" http-equiv="encoding">
   </head>
   <body>
+    <div id="plot"></div>
   </body>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/d3-fetch@3"></script>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script src="plot_xy.js" charset="utf-8"></script>
   <script>
 
    d3.json("roads.json").then((data) => {
      console.log(data);
+     var xmin = data["limits"][0],
+         xmax = data["limits"][1],
+         ymin = data["limits"][2],
+         ymax = data["limits"][3],
+         e0 = data["e0"],
+         e1 = data["e1"],
+         nx = data["nx"],
+         ny = data["ny"],
+         lines = [];
+     for (var i=0; i<e0.length; i++) {
+       p0 = [[nx[e0[i]], nx[e1[i]]],
+             [ny[e0[i]], ny[e1[i]]]];
+       lines.push(p0);
+     }
+
+     plot_xy("#plot", lines,
+             options={ x_label: "",
+                       y_label: "",
+                       ymin: ymin,
+                       ymax: ymax,
+                       xmin: xmin,
+                       xmax: xmax,
+                       colors: [d3.color("grey")],
+                       height: 800,
+                       width: 800,
+                       padding: {top: 0, right: 0, bottom: 0, left: 0},
+             }
+     )
+
    });
   </script>
 </html>
