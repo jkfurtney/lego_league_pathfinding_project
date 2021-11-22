@@ -48,14 +48,16 @@ for n in new_nodes:
     assert n in old_to_new_map
     deliveries.append(old_to_new_map[n])
 
-for n0, n1 in node_node.keys():
+str_key_routes = {}
+for (n0, n1), data in node_node.items():
     assert n0 in old_to_new_map
     assert n1 in old_to_new_map
+    key = str(n0)+":"+str(n1)
+    str_key_routes[key] = data
 
-
-1/0
 json.dump({"nx": nx, "ny": ny,
            "e0": e0, "e1": e1,
            "limits": (xmin, xmax, ymin, ymax),
-           "new_nodes": deliveries},
+           "new_nodes": deliveries,
+           "node_routes": str_key_routes},
           open("roads.json", "w"))

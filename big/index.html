@@ -11,10 +11,9 @@
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <script src="plot_xy.js?ver=1" charset="utf-8"></script>
   <script>
-   var e0,e1,nx,ny,new_nodes;
+   var e0,e1,nx,ny,new_nodes,current_node,node_routes,
+       total_time=0;
    var callback = function(data) {
-     console.log("my callback");
-     console.log(data);
      var dist = 1e100,
          closest_node=-1;
      for (var i=0; i<new_nodes.length; i++) {
@@ -26,8 +25,15 @@
          closest_node = i;
        }
      }
-     console.log(["closest_node", dist, closest_node, new_nodes[closest_node]]);
-     d3.select("#node"+new_nodes[closest_node]).remove();
+     //d3.select("#node"+new_nodes[closest_node]).remove();
+     d3.select("#node"+new_nodes[closest_node]).attr("fill", "#000");
+     var previous_node = current_node;
+     current_node = new_nodes[closest_node];
+     new_nodes = new_nodes.filter(function(item) {return item !== current_node});
+     // now draw from old node to current node
+     var key= Math.min(current_node, previous_node)+":"+Math.max(current_node, previous_node);
+     total_time += node_routes[key][0];
+     var new_path = node_routes[key][1];
    };
    d3.json("roads.json").then((data) => {
      console.log(data);
@@ -44,6 +50,7 @@
      nx = data["nx"];
      ny = data["ny"];
      new_nodes = data["new_nodes"];
+     node_routes = data["node_routes"];
      for (var i=0; i<e0.length; i++) {
        p0 = [[nx[e0[i]], nx[e1[i]]],
              [ny[e0[i]], ny[e1[i]]]];
@@ -66,10 +73,10 @@
                        height: 800,
                        width: 800,
                        callback: callback,
-                       padding: {top: 0, right: 0, bottom: 0, left: 0},
-             }
-     )
-
+                       padding: {top: 0, right: 0, bottom: 0, left: 0},});
+     d3.select("#node"+new_nodes[new_nodes.length-1]).attr("fill", "#000");
+     current_node = new_nodes[new_nodes.length-1];
+     new_nodes = new_nodes.filter(function(item) {return item !== current_node});
    });
   </script>
 </html>
