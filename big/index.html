@@ -47,10 +47,9 @@
      new_nodes = new_nodes.filter(function(item) {return item !== current_node});
      // now draw from old node to current node
      var key = Math.min(current_node, previous_node)+":"+Math.max(current_node, previous_node);
-     console.log(key);
      total_time += node_routes[key][0];
+     console.log(total_time);
      var path = node_routes[key][1];
-     console.log(path);
      var lines=[];
      for (var i=0; i<path.length-1; i++) {
        p0 = [[nx[path[i]], nx[path[i+1]]],
@@ -60,7 +59,6 @@
      add_segments(lines);
    };
    d3.json("roads.json").then((data) => {
-     console.log(data);
      var xmin = data["limits"][0],
          xmax = data["limits"][1],
          ymin = data["limits"][2],
