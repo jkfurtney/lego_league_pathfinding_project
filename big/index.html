@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>v2 </title>
+    <title>v3</title>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
   </head>
@@ -11,7 +11,7 @@
     <div id="messages"></div>
   </body>
   <script src="https://d3js.org/d3.v5.min.js"></script>
-  <script src="plot_xy.js?ver=1" charset="utf-8"></script>
+  <script src="plot_xy.js?ver=1.1" charset="utf-8"></script>
   <script>
    var e0,e1,nx,ny,new_nodes,current_node,node_routes,
        valueline, xscale, yscale, total_time=0;
@@ -43,7 +43,6 @@
          closest_node = i;
        }
      }
-     d3.select("#messages").append("div").text("found node");
      //d3.select("#node"+new_nodes[closest_node]).remove();
      d3.select("#node"+new_nodes[closest_node]).attr("fill", "#000");
      var previous_node = current_node;
@@ -55,15 +54,12 @@
      console.log(total_time);
      var path = node_routes[key][1];
      var lines=[];
-     d3.select("#messages").append("div").text("getting path");
      for (var i=0; i<path.length-1; i++) {
        p0 = [[nx[path[i]], nx[path[i+1]]],
              [ny[path[i]], ny[path[i+1]]]];
        lines.push(p0);
      }
-     d3.select("#messages").append("div").text("drawing");
      add_segments(lines);
-     d3.select("#messages").append("div").text("done");
    };
    d3.json("roads.json").then((data) => {
      var xmin = data["limits"][0],
