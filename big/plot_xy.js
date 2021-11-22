@@ -465,5 +465,5 @@ function plot_xy(destination, datasets, options) {
       }
     }
   }
-
+  return [valueline, x, y];
 }

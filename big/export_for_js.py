@@ -52,8 +52,11 @@ str_key_routes = {}
 for (n0, n1), data in node_node.items():
     assert n0 in old_to_new_map
     assert n1 in old_to_new_map
-    key = str(n0)+":"+str(n1)
-    str_key_routes[key] = data
+    m0 = old_to_new_map[n0]
+    m1 = old_to_new_map[n1];
+    key = str(min(m0,m1))+":"+str(max(m0,m1))
+    new_route = [old_to_new_map[_] for _ in data[1]]
+    str_key_routes[key] = data[0], new_route
 
 json.dump({"nx": nx, "ny": ny,
            "e0": e0, "e1": e1,
