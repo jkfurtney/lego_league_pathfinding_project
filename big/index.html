@@ -2,9 +2,14 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>v3</title>
+    <title>v4</title>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
+    <style>
+
+     .svg {cursor: pointer; }
+    </style>
+
   </head>
   <body>
     <div id="plot"></div>
@@ -89,7 +94,7 @@
        px.push([nx[new_nodes[i]], ny[new_nodes[i]], new_nodes[i]]);
      }
 
-     var ret = plot_xy("#plot", lines,
+     var ret = plot_xy("#plot", [],
                        options={ x_label: "",
                                  y_label: "",
                                  circle_arrays: [px],
