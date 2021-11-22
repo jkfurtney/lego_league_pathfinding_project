@@ -132,7 +132,7 @@ function plot_xy(destination, datasets, options) {
       options.callback(point);
     };
 
-    d3.select("svg").on("click tap", local_callback);
+    d3.select("svg").on("click", local_callback);
     //d3.select("svg").on('touchstart', local_callback);
     //d3.select("svg").on('touchend', local_callback);
     //d3.select("svg").on('touchcancel', local_callback);
