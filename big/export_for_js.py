@@ -43,7 +43,19 @@ for i in G.nodes():
 xmin, xmax = min(x_street), max(x_street)
 ymin, ymax = min(y_street), max(y_street)
 
+deliveries = []
+for n in new_nodes:
+    assert n in old_to_new_map
+    deliveries.append(old_to_new_map[n])
+
+for n0, n1 in node_node.keys():
+    assert n0 in old_to_new_map
+    assert n1 in old_to_new_map
+
+
+1/0
 json.dump({"nx": nx, "ny": ny,
            "e0": e0, "e1": e1,
-           "limits": (xmin, xmax, ymin, ymax)},
+           "limits": (xmin, xmax, ymin, ymax),
+           "new_nodes": deliveries},
           open("roads.json", "w"))

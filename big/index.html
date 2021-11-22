@@ -9,29 +9,55 @@
     <div id="plot"></div>
   </body>
   <script src="https://d3js.org/d3.v5.min.js"></script>
-  <script src="plot_xy.js" charset="utf-8"></script>
+  <script src="plot_xy.js?ver=1" charset="utf-8"></script>
   <script>
-
+   var e0,e1,nx,ny,new_nodes;
+   var callback = function(data) {
+     console.log("my callback");
+     console.log(data);
+     var dist = 1e100,
+         closest_node=-1;
+     for (var i=0; i<new_nodes.length; i++) {
+       var cx = nx[new_nodes[i]],
+           cy = ny[new_nodes[i]],
+           local_dist = (cx-data.x)*(cx-data.x) + (cy-data.y)*(cy-data.y);
+       if (local_dist < dist) {
+         dist = local_dist;
+         closest_node = i;
+       }
+     }
+     console.log(["closest_node", dist, closest_node, new_nodes[closest_node]]);
+     d3.select("#node"+new_nodes[closest_node]).remove();
+   };
    d3.json("roads.json").then((data) => {
      console.log(data);
      var xmin = data["limits"][0],
          xmax = data["limits"][1],
          ymin = data["limits"][2],
          ymax = data["limits"][3],
-         e0 = data["e0"],
-         e1 = data["e1"],
-         nx = data["nx"],
-         ny = data["ny"],
-         lines = [];
+         lines = [],
+         px = [],
+         py = [];
+
+     e0 = data["e0"];
+     e1 = data["e1"];
+     nx = data["nx"];
+     ny = data["ny"];
+     new_nodes = data["new_nodes"];
      for (var i=0; i<e0.length; i++) {
        p0 = [[nx[e0[i]], nx[e1[i]]],
              [ny[e0[i]], ny[e1[i]]]];
        lines.push(p0);
      }
+     for (var i=0; i<new_nodes.length; i++) {
+       px.push([nx[new_nodes[i]], ny[new_nodes[i]], new_nodes[i]]);
+     }
 
      plot_xy("#plot", lines,
              options={ x_label: "",
                        y_label: "",
+                       circle_arrays: [px],
+                       circle_arrays_colors: [d3.color("red")],
                        ymin: ymin,
                        ymax: ymax,
                        xmin: xmin,
@@ -39,6 +65,7 @@
                        colors: [d3.color("grey")],
                        height: 800,
                        width: 800,
+                       callback: callback,
                        padding: {top: 0, right: 0, bottom: 0, left: 0},
              }
      )

@@ -122,6 +122,17 @@ function plot_xy(destination, datasets, options) {
       .attr("style", "overflow:hidden;")
       .append("g")
       .attr("transform", "translate(" + padding.left + "," + padding.top + ")");
+  if (options.callback) {
+    d3.select("svg").on("click", function() {
+      var coords = d3.mouse(this);
+      var point = {
+        x:  x.invert(coords[0]),  // Takes the pixel number to convert to number
+        y:  y.invert(coords[1])
+      };
+      options.callback(point);
+    });
+  }
+
   chart1.append("text")
     .attr("text-anchor", "middle")
     .attr("transform", "translate("+ (width/2)+","+(height+label_offset)+")")
@@ -147,25 +158,6 @@ function plot_xy(destination, datasets, options) {
     .attr("style", "font-size:" + ("label_size" in options ? options.label_size : 15) + "px;")
     .text(y2_label);
 
-    if ("circle_arrays" in options) {
-    let radius = options.circle_arrays_radius || 5;
-    let lcolors =  colors;
-    if ("circle_arrays_colors" in options) {
-      lcolors = d3.scaleOrdinal().range(options.circle_arrays_colors)
-        .domain(d3.range(options.circle_arrays_colors.length));
-    }
-
-    for (let i = 0; i < options.circle_arrays.length; i++) {
-        let d = options.circle_arrays[i];
-        for (let j = 0; j < d.length; j++) {
-          chart1.append("circle")
-                .attr("cx", x(d[j][0]))
-                .attr("cy", y(d[j][1]))
-                .attr("r", radius)
-            .attr("fill", lcolors(i));
-        }
-    }
-  }
 
   datasets.forEach(function (d, i) {
     let xarray = d[0];
@@ -319,17 +311,6 @@ function plot_xy(destination, datasets, options) {
   chart1.selectAll(".tick text")
     .attr("font-size", axes_size);
 
-  if ("circles" in options) {
-    let color = "circle_color" in options ? options.circle_color : colors(color_index);
-    options.circles.forEach(function (d,i) {
-      chart1.append("circle")
-          .attr("cx", x(d[0]))
-          .attr("cy", y(d[1]))
-          .attr("r", 10)
-          .attr("fill", color);
-    });
-  }
-
 
   if ("show_datapoints" in options) {
     // Turn into array if not an array
@@ -449,8 +430,40 @@ function plot_xy(destination, datasets, options) {
         d3.select(ltarget).append("br");
       });
     }
+
+
   }
 
+  if ("circles" in options) {
+    let color = "circle_color" in options ? options.circle_color : colors(color_index);
+    options.circles.forEach(function (d,i) {
+      chart1.append("circle")
+        .attr("cx", x(d[0]))
+        .attr("cy", y(d[1]))
+        .attr("r", 10)
+        .attr("fill", color);
+    });
+  }
 
+  if ("circle_arrays" in options) {
+    let radius = options.circle_arrays_radius || 5;
+    let lcolors =  colors;
+    if ("circle_arrays_colors" in options) {
+      lcolors = d3.scaleOrdinal().range(options.circle_arrays_colors)
+        .domain(d3.range(options.circle_arrays_colors.length));
+    }
+
+    for (let i = 0; i < options.circle_arrays.length; i++) {
+      let d = options.circle_arrays[i];
+      for (let j = 0; j < d.length; j++) {
+        chart1.append("circle")
+          .attr("cx", x(d[j][0]))
+          .attr("cy", y(d[j][1]))
+          .attr("id", "node"+d[j][2])
+          .attr("r", radius)
+          .attr("fill", lcolors(i));
+      }
+    }
+  }
 
 }
