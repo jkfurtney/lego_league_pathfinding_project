@@ -123,18 +123,20 @@ function plot_xy(destination, datasets, options) {
       .append("g")
       .attr("transform", "translate(" + padding.left + "," + padding.top + ")");
   if (options.callback) {
-    d3.select("svg").on("click tap", function() {
+    var local_callback = function() {
       var coords = d3.mouse(this);
       var point = {
         x:  x.invert(coords[0]),  // Takes the pixel number to convert to number
         y:  y.invert(coords[1])
       };
       options.callback(point);
-    });
-    d3.select("svg").on('touchstart', () => {});
-    d3.select("svg").on('touchend', () => {});
-    d3.select("svg").on('touchcancel', () => {});
-    d3.select("svg").on('touchmove', () => {});
+    };
+
+    d3.select("svg").on("click tap", local_callback);
+    d3.select("svg").on('touchstart', local_callback);
+    d3.select("svg").on('touchend', local_callback);
+    d3.select("svg").on('touchcancel', local_callback);
+    d3.select("svg").on('touchmove', local_callback);
   }
 
   chart1.append("text")
