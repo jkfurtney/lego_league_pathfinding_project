@@ -19,7 +19,8 @@
   <script src="plot_xy.js?ver=1.1" charset="utf-8"></script>
   <script>
    var e0,e1,nx,ny,new_nodes,current_node,node_routes,
-       valueline, xscale, yscale, total_time=0;
+       valueline, xscale, yscale, chart, // returned by plotting function
+       total_time=0;
 
    var add_segments = function(datasets) {
      datasets.forEach(function (d, i) {
@@ -78,7 +79,7 @@
          py = [],
          width=1000,
          height=parseInt(width*dy/dx);
-
+     console.log([width, height]);
      e0 = data["e0"];
      e1 = data["e1"];
      nx = data["nx"];
@@ -94,11 +95,12 @@
        px.push([nx[new_nodes[i]], ny[new_nodes[i]], new_nodes[i]]);
      }
 
-     var ret = plot_xy("#plot", lines,
+     var ret = plot_xy("#plot", [],
                        options={ x_label: "",
                                  y_label: "",
                                  circle_arrays: [px],
                                  circle_arrays_colors: [d3.color("red")],
+                                 image: "bg_streets.png",
                                  ymin: ymin,
                                  ymax: ymax,
                                  xmin: xmin,
@@ -111,6 +113,7 @@
      valueline = ret[0];
      xscale = ret[1];
      yscale = ret[2];
+     chart = ret[3];
      d3.select("#node"+new_nodes[new_nodes.length-1]).attr("fill", "#000");
      current_node = new_nodes[new_nodes.length-1];
      new_nodes = new_nodes.filter(function(item) {return item !== current_node});
