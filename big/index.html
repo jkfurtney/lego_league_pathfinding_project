@@ -18,7 +18,7 @@
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <script src="plot_xy.js?ver=1.1" charset="utf-8"></script>
   <script>
-   var e0,e1,nx,ny,new_nodes,current_node,node_routes,
+   var nx,ny,new_nodes,current_node,node_routes,starting_node,
        valueline, xscale, yscale, chart, // returned by plotting function
        total_time=0;
 
@@ -67,30 +67,22 @@
      }
      add_segments(lines);
    };
-   d3.json("roads.json").then((data) => {
+   d3.json("routes.json").then((data) => {
      var xmin = data["limits"][0],
          xmax = data["limits"][1],
          ymin = data["limits"][2],
          ymax = data["limits"][3],
          dx = xmax-xmin,
          dy = ymax-ymin,
-         lines = [],
          px = [],
          py = [],
          width=1000,
          height=parseInt(width*dy/dx);
-     console.log([width, height]);
-     e0 = data["e0"];
-     e1 = data["e1"];
      nx = data["nx"];
      ny = data["ny"];
      new_nodes = data["new_nodes"];
      node_routes = data["node_routes"];
-     for (var i=0; i<e0.length; i++) {
-       p0 = [[nx[e0[i]], nx[e1[i]]],
-             [ny[e0[i]], ny[e1[i]]]];
-       lines.push(p0);
-     }
+
      for (var i=0; i<new_nodes.length; i++) {
        px.push([nx[new_nodes[i]], ny[new_nodes[i]], new_nodes[i]]);
      }
@@ -117,7 +109,8 @@
      chart = ret[3];
      d3.select("#node"+new_nodes[new_nodes.length-1]).attr("fill", "#000");
      current_node = new_nodes[new_nodes.length-1];
-     new_nodes = new_nodes.filter(function(item) {return item !== current_node});
+     starting_node = current_node;
+     new_nodes = new_nodes.filter(function(item) { return item !== current_node; });
    });
   </script>
 </html>
