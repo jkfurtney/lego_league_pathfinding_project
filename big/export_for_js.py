@@ -6,6 +6,23 @@ node_hash, house_ways, G, node_node, new_nodes = joblib.load("stpaul_processed2.
 
 # we could also do some geometric simplification of the segments
 
+# for i, n in enumerate(new_nodes):
+#     x,y = node_hash[n]
+#     if x<0 and y<0:
+#         print(i,n,x,y)
+
+near_duplicate_delivery = 43140
+#25 43140
+#in this particular dataset there are two nodes that are right next to each other which is annoying
+# so we manually get rid of one.
+new_nodes.remove(near_duplicate_delivery)
+remove_nn = []
+for n0, n1 in node_node.keys():
+    if near_duplicate_delivery in (n0, n1):
+        remove_nn.append((n0,n1))
+for key in remove_nn:
+    del node_node[key]
+
 way_nodes = set()
 for (n0,n1), _ in G.edges.items():
     way_nodes.add(n0)
