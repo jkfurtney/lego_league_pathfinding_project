@@ -62,7 +62,10 @@
          lines.push(p0);
        }
        add_segments(lines);
-       d3.select("#messages").append("div").text("Total time " + total_time + " minutes");
+       d3.select("#messages")
+         .append("div")
+         .style("font-size", "40px")
+         .text("Total time " + d3.format(".1f")(total_time) + " minutes");
        return;
      }
      d3.select("#node"+new_nodes[closest_node]).attr("fill", "#000");
@@ -122,9 +125,9 @@
      yscale = ret[2];
      chart = ret[3];
      d3.select("#node"+new_nodes[new_nodes.length-1]).attr("fill", "#000");
-     current_node = new_nodes[new_nodes.length-1];
-     starting_node = current_node;
-     new_nodes = new_nodes.filter(function(item) { return item !== current_node; });
+       current_node = new_nodes[new_nodes.length-1];
+       starting_node = current_node;
+       new_nodes = new_nodes.filter(function(item) { return item !== current_node; });
    });
   </script>
 </html>
