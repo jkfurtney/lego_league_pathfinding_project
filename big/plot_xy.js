@@ -125,8 +125,8 @@ function plot_xy(destination, datasets, options) {
 
   if (options.image) {
      chart1.append("svg:image")
-      .attr('x', 0)
-      .attr('y', 0)
+      .attr('x', "x_image" in options ? options.x_image : 0)
+      .attr('y', "y_image" in options ? options.y_image : 0)
       .attr('width', width)
       .attr('height', height)
       .attr("xlink:href", options.image);
