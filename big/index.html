@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>v8</title>
+    <title>(Round 2.5)</title>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
     <style>
@@ -12,124 +12,16 @@
 
   </head>
   <body>
-    <div id="plot"></div>
-    <div id="messages"></div>
+    <h2> Help the delivery driver find the fastest route from Ramsey to all the red deliveries and back to Ramsey</body>
+      <div style="font-size:40px">
+      <ul>
+        <li><a href="round_123321_10.html">10 deliveries</a></li>
+          <li><a href="round_123321_20.html">20 deliveries</a></li>
+          <li><a href="round_30.html">30 deliveries</a></li>
+          <li><a href="round_123321_40.html">40 deliveries</a></li>
+          <li><a href="round_123321_50.html">50 deliveries</a></li>
+          <li><a href="round_123321_60.html">60 deliveries</a></li>
+      </ul>
+      </div>
   </body>
-  <script src="https://d3js.org/d3.v5.min.js"></script>
-  <script src="plot_xy.js?ver=1.1" charset="utf-8"></script>
-  <script>
-   var nx,ny,new_nodes,current_node,node_routes,starting_node,
-       valueline, xscale, yscale, chart, // returned by plotting function
-       total_time=0, done=false;
-
-   var add_segments = function(datasets) {
-     datasets.forEach(function (d, i) {
-       let xarray = d[0];
-       let yarray = d[1];
-       var chart = d3.select("#plot svg");
-       let path = chart.append("path")
-                       .attr("class", "line")
-                       .attr("stroke", "#000")
-                       .attr("stroke-width", '5px')
-                       .attr("fill", 'none')
-                       .attr("d", valueline(xarray, yarray, xscale, yscale));
-     });
-   }
-
-   var callback = function(data) {
-     if (done) { return; }
-     var dist = 1e100,
-         closest_node=-1;
-     for (var i=0; i<new_nodes.length; i++) {
-       var cx = nx[new_nodes[i]],
-           cy = ny[new_nodes[i]],
-           local_dist = (cx-data.x)*(cx-data.x) + (cy-data.y)*(cy-data.y);
-       if (local_dist < dist) {
-         dist = local_dist;
-         closest_node = i;
-       }
-     }
-
-
-     d3.select("#node"+new_nodes[closest_node]).attr("fill", "#000");
-     var previous_node = current_node;
-     current_node = new_nodes[closest_node];
-     new_nodes = new_nodes.filter(function(item) {return item !== current_node});
-     // now draw from old node to current node
-     var key = Math.min(current_node, previous_node)+":"+Math.max(current_node, previous_node);
-     total_time += node_routes[key][0];
-     var path = node_routes[key][1];
-     var lines=[];
-     for (var i=0; i<path.length-1; i++) {
-       p0 = [[nx[path[i]], nx[path[i+1]]],
-             [ny[path[i]], ny[path[i+1]]]];
-       lines.push(p0);
-     }
-     add_segments(lines);
-
-     if (new_nodes.length === 0) {
-       done=true;
-       var key = Math.min(starting_node, current_node)+":"+Math.max(starting_node, current_node);
-       total_time += node_routes[key][0];
-       var path = node_routes[key][1];
-       var lines=[];
-       for (var i=0; i<path.length-1; i++) {
-         p0 = [[nx[path[i]], nx[path[i+1]]],
-               [ny[path[i]], ny[path[i+1]]]];
-         lines.push(p0);
-       }
-       add_segments(lines);
-       d3.select("#messages")
-         .append("div")
-         .style("font-size", "40px")
-         .text("Total time " + d3.format(".1f")(total_time) + " minutes");
-       return;
-     }
-   };
-   d3.json("routes.json").then((data) => {
-     var xmin = data["limits"][0],
-         xmax = data["limits"][1],
-         ymin = data["limits"][2],
-         ymax = data["limits"][3],
-         dx = xmax-xmin,
-         dy = ymax-ymin,
-         px = [],
-         py = [],
-         width=1000,
-         height=parseInt(width*dy/dx);
-     nx = data["nx"];
-     ny = data["ny"];
-     new_nodes = data["new_nodes"];
-     node_routes = data["node_routes"];
-
-     for (var i=0; i<new_nodes.length; i++) {
-       px.push([nx[new_nodes[i]], ny[new_nodes[i]], new_nodes[i]]);
-     }
-
-     var ret = plot_xy("#plot", [],
-                       options={ x_label: "",
-                                 y_label: "",
-                                 circle_arrays: [px],
-                                 circle_arrays_colors: [d3.color("red")],
-                                 image: "bg_streets.png",
-                                 y_image: -5,
-                                 ymin: ymin,
-                                 ymax: ymax,
-                                 xmin: xmin,
-                                 xmax: xmax,
-                                 colors: [d3.color("grey")],
-                                 height: height,
-                                 width: width,
-                                 callback: callback,
-                                 padding: {top: 0, right: 0, bottom: 0, left: 0},});
-     valueline = ret[0];
-     xscale = ret[1];
-     yscale = ret[2];
-     chart = ret[3];
-     d3.select("#node"+new_nodes[new_nodes.length-1]).attr("fill", "#000");
-     current_node = new_nodes[new_nodes.length-1];
-     starting_node = current_node;
-     new_nodes = new_nodes.filter(function(item) { return item !== current_node; });
-   });
-  </script>
 </html>

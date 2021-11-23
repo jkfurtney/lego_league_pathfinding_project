@@ -20,7 +20,9 @@ print("done")
 
 school = house_ways[ramsey_id]
 del house_ways[ramsey_id]
-deliveries  = list(random.sample(tuple(house_ways.keys()), 30)) +[ramsey_id]
+seed, N = 123321, 40
+random.seed(seed)
+deliveries  = list(random.sample(tuple(house_ways.keys()), N)) +[ramsey_id]
 house_ways[ramsey_id] = school
 
 def search_for_house_road_edge(house):
@@ -89,9 +91,8 @@ for n0,n1 in itertools.combinations(new_nodes, 2):
 
 
 plot_streets(G)
-
 plot_deliveries(G, new_nodes)
 set_plot_lims(G, node_hash)
 plt.show()
 
-joblib.dump((node_hash, house_ways, G, node_node, new_nodes), "stpaul_processed2.pkl")
+joblib.dump((node_hash, house_ways, G, node_node, new_nodes), f"round_{seed}_{N}.pkl")
