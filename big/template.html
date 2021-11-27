@@ -19,9 +19,10 @@
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <script src="plot_xy.js?ver=1.1" charset="utf-8"></script>
   <script>
-   var nx,ny,new_nodes,current_node,node_routes,starting_node,
+   var nx,ny, // data from server
+       new_nodes,current_node,node_routes,starting_node, // solution state
        valueline, xscale, yscale, chart, // returned by plotting function
-       total_time=0, done=false;
+       total_time=0, done=false; // solution state
 
    var add_segments = function(datasets) {
      datasets.forEach(function (d, i) {
