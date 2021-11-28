@@ -6,22 +6,30 @@
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
     <style>
-
      .svg {cursor: pointer; }
     </style>
 
   </head>
   <body>
     <h2>(Round 1) Help the delivery driver find the fastest route from Ramsey to all the red deliveries and back to Ramsey</body>
-    <div id="plot"></div>
-    <div id="messages"></div>
+      <div id="controls">
+        <input type="button" onclick="reset_path();" value="Reset"/>
+        <input type="button" onclick="alg_path('google_guided_local_search');" value="Guided Local Search"/>
+        <input type="button" onclick="alg_path('nx_greedy');" value="Greedy"/>
+        <input type="button" onclick="alg_path('nx_christofides');" value="Christofides"/>
+        <input type="button" onclick="alg_path('random_path');" value="Random"/>
+        <input type="button" onclick="alg_path('deliberately_bad');" value="Deliberately Bad"/>
+      </div>
+      <div id="plot"></div>
+      <div id="messages"></div>
   </body>
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <script src="plot_xy.js?ver=1.1" charset="utf-8"></script>
   <script>
-   var nx,ny,new_nodes,current_node,node_routes,starting_node,
+   var nx,ny, original_nodes, alg_names, alg_paths, // data from server
+       new_nodes,current_node,node_routes,starting_node, // solution state
        valueline, xscale, yscale, chart, // returned by plotting function
-       total_time=0, done=false;
+       total_time=0, done=false; // solution state
 
    var add_segments = function(datasets) {
      datasets.forEach(function (d, i) {
@@ -37,6 +45,45 @@
      });
    }
 
+   function alg_path(alg) {
+     done=true;
+     reset_path();
+     var alg_path = alg_paths[alg];
+     d3.selectAll("#plot circle").attr("fill", "#000");
+     for (var j=0; j<alg_path.length-1; j++) {
+       current_node = alg_path[j+1];
+       previous_node = alg_path[j];
+       var key = Math.min(current_node, previous_node)+":"+Math.max(current_node, previous_node);
+       total_time += node_routes[key][0];
+       var path = node_routes[key][1];
+       var lines=[];
+       for (var i=0; i<path.length-1; i++) {
+         p0 = [[nx[path[i]], nx[path[i+1]]],
+               [ny[path[i]], ny[path[i+1]]]];
+         lines.push(p0);
+       }
+       add_segments(lines);
+     }
+     d3.select("#messages")
+       .append("div")
+       .style("font-size", "40px")
+       .text("Total time " + d3.format(".1f")(total_time) + " minutes");
+   }
+
+   function reset_path() {
+     d3.selectAll("#plot path.line").remove();
+     d3.selectAll("#plot circle").attr("fill", "#F00");
+     new_nodes = [...original_nodes];
+     current_node = new_nodes[new_nodes.length-1];
+     starting_node = current_node;
+     d3.select("#node"+new_nodes[new_nodes.length-1]).attr("fill", "#000");
+     new_nodes = new_nodes.filter(function(item) { return item !== current_node; });
+     d3.select("#messages").html("");
+     done=false;
+     total_time=0.0;
+   }
+
+
    var callback = function(data) {
      if (done) { return; }
      var dist = 1e100,
@@ -50,7 +97,6 @@
          closest_node = i;
        }
      }
-
 
      d3.select("#node"+new_nodes[closest_node]).attr("fill", "#000");
      var previous_node = current_node;
@@ -87,7 +133,7 @@
        return;
      }
    };
-   d3.json("round_123321_10.json").then((data) => {
+   d3.json("_round_123321_10.json").then((data) => {
      var xmin = data["limits"][0],
          xmax = data["limits"][1],
          ymin = data["limits"][2],
@@ -101,7 +147,10 @@
      nx = data["nx"];
      ny = data["ny"];
      new_nodes = data["new_nodes"];
+     original_nodes = [...new_nodes];
      node_routes = data["node_routes"];
+     alg_names = data["alg_names"];
+     alg_paths = data["alg_paths"];
 
      for (var i=0; i<new_nodes.length; i++) {
        px.push([nx[new_nodes[i]], ny[new_nodes[i]], new_nodes[i]]);
@@ -127,6 +176,7 @@
      xscale = ret[1];
      yscale = ret[2];
      chart = ret[3];
+
      d3.select("#node"+new_nodes[new_nodes.length-1]).attr("fill", "#000");
      current_node = new_nodes[new_nodes.length-1];
      starting_node = current_node;

@@ -14,12 +14,11 @@
     <h2>(Round 1) Help the delivery driver find the fastest route from Ramsey to all the red deliveries and back to Ramsey</body>
       <div id="controls">
         <input type="button" onclick="reset_path();" value="Reset"/>
-        <input type="button" onclick="alg_path(\"google_guided_local_search\");" value="Guided Local Search"/>
-        <input type="button" onclick="alg_path(\"google_tabu_search\");" value="Tabu Search"/>
-        <input type="button" onclick="alg_path(\"nx_greedy\");" value="Greedy"/>
-        <input type="button" onclick="alg_path(\"nx_christofides\");" value="Christofides"/>
-        <input type="button" onclick="alg_path(\"deliberately_bad\");" value="Deliberately Bad"/>
-
+        <input type="button" onclick="alg_path('google_guided_local_search');" value="Guided Local Search"/>
+        <input type="button" onclick="alg_path('nx_greedy');" value="Greedy"/>
+        <input type="button" onclick="alg_path('nx_christofides');" value="Christofides"/>
+        <input type="button" onclick="alg_path('random_path');" value="Random"/>
+        <input type="button" onclick="alg_path('deliberately_bad');" value="Deliberately Bad"/>
       </div>
       <div id="plot"></div>
       <div id="messages"></div>
@@ -152,8 +151,6 @@
      node_routes = data["node_routes"];
      alg_names = data["alg_names"];
      alg_paths = data["alg_paths"];
-     console.log(alg_names);
-     console.log(alg_paths[alg_names[0]]);
 
      for (var i=0; i<new_nodes.length; i++) {
        px.push([nx[new_nodes[i]], ny[new_nodes[i]], new_nodes[i]]);
