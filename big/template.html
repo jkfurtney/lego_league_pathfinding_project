@@ -12,17 +12,18 @@
 
   </head>
   <body>
-    <h2>{{round}} Help the delivery driver find the fastest route from Ramsey to all the red deliveries and back to Ramsey</body>
+    <h2>(Round 1) Help the delivery driver find the fastest route from Ramsey to all the red deliveries and back to Ramsey</body>
+      <div id="controls"><input type="button" onclick="reset_path();" value="Reset"/></div>
     <div id="plot"></div>
     <div id="messages"></div>
   </body>
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <script src="plot_xy.js?ver=1.1" charset="utf-8"></script>
   <script>
-   var nx,ny, // data from server
-       new_nodes,current_node,node_routes,starting_node, // solution state
-       valueline, xscale, yscale, chart, // returned by plotting function
-       total_time=0, done=false; // solution state
+   var nx,ny, original_nodes, node_routes,      // data from server
+       valueline, xscale, yscale, chart,        // returned by plotting function
+       new_nodes,current_node, starting_node,   // solution state
+       total_time=0, done=false;                // solution state
 
    var add_segments = function(datasets) {
      datasets.forEach(function (d, i) {
@@ -38,6 +39,20 @@
      });
    }
 
+   function reset_path(data) {
+     d3.selectAll("#plot path.line").remove();
+     d3.selectAll("#plot circle").attr("fill", "#F00");
+     new_nodes = [...original_nodes];
+     current_node = new_nodes[new_nodes.length-1];
+     starting_node = current_node;
+     d3.select("#node"+new_nodes[new_nodes.length-1]).attr("fill", "#000");
+     new_nodes = new_nodes.filter(function(item) { return item !== current_node; });
+     d3.select("#messages").html("");
+     done=false;
+     total_time=0.0;
+   }
+
+
    var callback = function(data) {
      if (done) { return; }
      var dist = 1e100,
@@ -51,7 +66,6 @@
          closest_node = i;
        }
      }
-
 
      d3.select("#node"+new_nodes[closest_node]).attr("fill", "#000");
      var previous_node = current_node;
@@ -102,6 +116,7 @@
      nx = data["nx"];
      ny = data["ny"];
      new_nodes = data["new_nodes"];
+     original_nodes = [...new_nodes];
      node_routes = data["node_routes"];
 
      for (var i=0; i<new_nodes.length; i++) {
@@ -128,6 +143,7 @@
      xscale = ret[1];
      yscale = ret[2];
      chart = ret[3];
+
      d3.select("#node"+new_nodes[new_nodes.length-1]).attr("fill", "#000");
      current_node = new_nodes[new_nodes.length-1];
      starting_node = current_node;
