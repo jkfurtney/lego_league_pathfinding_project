@@ -12,10 +12,10 @@ for key, d in data.items():
     d = np.array(d)
     case_min = d.min(axis=1)
     frac = (d.T/case_min).T
-    mean_score = frac.mean(axis=0)
+    mean_score = (frac.mean(axis=0)-1)*100
     order = np.argsort(mean_score)
     for i in order:
-        score = mean_score[i]-1
+        score = mean_score[i]
         # if score==0: score="best"
         # else: score=math.log10(score)
-        print(alg_names[i], score)
+        print(alg_names[i], f"{score:.2f}", "%")
