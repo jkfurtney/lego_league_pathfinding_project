@@ -11,7 +11,7 @@
 
   </head>
   <body>
-    <h2>(Round 1) Help the delivery driver find the fastest route from Ramsey to all the red deliveries and back to Ramsey</body>
+    <h2>{{round}} Help the delivery driver find the fastest route from Ramsey to all the red deliveries and back to Ramsey</body>
       <div id="controls">
         <input type="button" onclick="reset_path();" value="Reset"/>
         <input type="button" onclick="alg_path('google_guided_local_search');" value="Guided Local Search"/>
@@ -20,8 +20,8 @@
         <input type="button" onclick="alg_path('random_path');" value="Random"/>
         <input type="button" onclick="alg_path('deliberately_bad');" value="Deliberately Bad"/>
       </div>
-      <div id="plot"></div>
       <div id="messages"></div>
+      <div id="plot"></div>
   </body>
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <script src="plot_xy.js?ver=1.1" charset="utf-8"></script>
@@ -31,15 +31,15 @@
        valueline, xscale, yscale, chart, // returned by plotting function
        total_time=0, done=false; // solution state
 
-   var add_segments = function(datasets) {
+   var add_segments = function(datasets, size='5px', color="#000") {
      datasets.forEach(function (d, i) {
        let xarray = d[0];
        let yarray = d[1];
        var chart = d3.select("#plot svg");
        let path = chart.append("path")
                        .attr("class", "line")
-                       .attr("stroke", "#000")
-                       .attr("stroke-width", '5px')
+                       .attr("stroke", color)
+                       .attr("stroke-width", size)
                        .attr("fill", 'none')
                        .attr("d", valueline(xarray, yarray, xscale, yscale));
      });
@@ -50,20 +50,25 @@
      reset_path();
      var alg_path = alg_paths[alg];
      d3.selectAll("#plot circle").attr("fill", "#000");
+     var outer_lines = [];
      for (var j=0; j<alg_path.length-1; j++) {
        current_node = alg_path[j+1];
        previous_node = alg_path[j];
+       var outerp0 = [[nx[current_node], nx[previous_node]],
+                      [ny[current_node], ny[previous_node]]];
+       outer_lines.push(outerp0);
        var key = Math.min(current_node, previous_node)+":"+Math.max(current_node, previous_node);
        total_time += node_routes[key][0];
        var path = node_routes[key][1];
        var lines=[];
        for (var i=0; i<path.length-1; i++) {
-         p0 = [[nx[path[i]], nx[path[i+1]]],
-               [ny[path[i]], ny[path[i+1]]]];
+         var p0 = [[nx[path[i]], nx[path[i+1]]],
+                   [ny[path[i]], ny[path[i+1]]]];
          lines.push(p0);
        }
        add_segments(lines);
      }
+     add_segments(outer_lines, '2px', "#F00");
      d3.select("#messages")
        .append("div")
        .style("font-size", "40px")
@@ -107,12 +112,15 @@
      total_time += node_routes[key][0];
      var path = node_routes[key][1];
      var lines=[];
+     var outer_line = [[[nx[current_node], nx[previous_node]],
+                        [ny[current_node], ny[previous_node]]]];
      for (var i=0; i<path.length-1; i++) {
-       p0 = [[nx[path[i]], nx[path[i+1]]],
-             [ny[path[i]], ny[path[i+1]]]];
+       var p0 = [[nx[path[i]], nx[path[i+1]]],
+                 [ny[path[i]], ny[path[i+1]]]];
        lines.push(p0);
      }
      add_segments(lines);
+     add_segments(outer_line, size='2px', color="#F00");
 
      if (new_nodes.length === 0) {
        done=true;
@@ -120,12 +128,16 @@
        total_time += node_routes[key][0];
        var path = node_routes[key][1];
        var lines=[];
+       var outer_line = [[[nx[current_node], nx[starting_node]],
+                          [ny[current_node], ny[starting_node]]]];
+
        for (var i=0; i<path.length-1; i++) {
-         p0 = [[nx[path[i]], nx[path[i+1]]],
-               [ny[path[i]], ny[path[i+1]]]];
+         var p0 = [[nx[path[i]], nx[path[i+1]]],
+                   [ny[path[i]], ny[path[i+1]]]];
          lines.push(p0);
        }
        add_segments(lines);
+       add_segments(outer_line, size='2px', color="#F00");
        d3.select("#messages")
          .append("div")
          .style("font-size", "40px")
