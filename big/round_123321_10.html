@@ -14,6 +14,11 @@
     <h2>(Round 1) Help the delivery driver find the fastest route from Ramsey to all the red deliveries and back to Ramsey</body>
       <div id="controls">
         <input type="button" onclick="reset_path();" value="Reset"/>
+        <input type="button" onclick="alg_path('google_guided_local_search');" value="Guided Local Search"/>
+        <input type="button" onclick="alg_path('nx_greedy');" value="Greedy"/>
+        <input type="button" onclick="alg_path('nx_christofides');" value="Christofides"/>
+        <input type="button" onclick="alg_path('random_path');" value="Random"/>
+        <input type="button" onclick="alg_path('deliberately_bad');" value="Deliberately Bad"/>
       </div>
       <div id="plot"></div>
       <div id="messages"></div>
